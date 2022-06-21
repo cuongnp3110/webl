@@ -1,0 +1,156 @@
+﻿@model IEnumerable<WebL.Models.webl>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="content">
+
+    @* Data List *@
+    <div class="container-fluid" id="container-wrapper">
+        <br /><br /><br />
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #044170;">
+                        <h6 class="m-0" style="font-size: large; color: #fff;">Manage <b>Employees</b></h6>
+                        <a style="background-color: green; color:#fff; padding: 5px 10px 5px 10px; border-radius: 5px; cursor: pointer;" data-toggle="modal" data-target="#add">
+                            <i class="fas fa-plus-circle"></i> Add new employees
+                        </a>
+                    </div>
+                    <div class="table-responsive p-3">
+                        <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>@Html.DisplayNameFor(model => model.name)</th>
+                                    <th>@Html.DisplayNameFor(model => model.email)</th>
+                                    <th>@Html.DisplayNameFor(model => model.address)</th>
+                                    <th>@Html.DisplayNameFor(model => model.phone)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => item.id)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.name)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.email)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.address)</td>
+                                        <td class="phoneFormat">@Html.DisplayFor(modelItem => item.phone)</td>
+                                        <td>
+                                            <a href="javascript:void(0)" class="deleteBtn" id="deleteBtn" data-toggle="modal" data-target="#delete">
+                                                <i class="fas fa-trash" style="color: red"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="messBox" id="messBox" hidden>
+        <p class="messContent" id="messContent"></p>
+    </div>
+
+    @* Add Employee *@
+    <div class="modal fade" id="add" tabindex="-1" role="dialog" aria-hidden="true">
+        <div style="max-width: 35%" class="modal-dialog " role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Employees</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    @using (Html.BeginForm("Create", "webls", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <form method="post" enctype="multipart/form-data" role="form">
+                        <div class="form-group">
+                            <p style="Text-align:center;float:left">Name</p> 
+                            <p style="Text-align:right;float:left; color: red">*</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="name" id="name" maxlength="50" minlength="2" value="" onchange="validateName()">
+                            <p id="nameStatus" style="font-size: 12px"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <p style="Text-align:center;float:left">Email</p>
+                            <p style="Text-align:right;float:left; color: red">*</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="email" id="email" maxlength="50" value="" onchange="validateEmail()">
+                            <p id="emailStatus" style="font-size: 12px"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <p>Address</p>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" name="address" id="address" maxlength="150" value="" onchange="validateAddress()"></textarea>
+                            <p id="addressStatus" style="font-size: 12px"></p>
+                        </div>
+
+                        <div class="form-group">
+                            <p style="Text-align:center;float:left">Phone</p>
+                            <p style="Text-align:right;float:left; color: red">*</p>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control" name="phone" id="phone" maxlength="10" onchange="validatePhone();"
+                                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                            <p id="phoneStatus" style="font-size: 12px"></p>
+                        </div>
+                        <br />
+                        <div class="form-group" style="float: right;">
+                            <input type="button" class="btn" data-dismiss="modal" value="Cancel">
+                            <input type="submit" class="btn btn-success" style="width: 100px; background-color: green" id="addBtn" name="addBtn" value="Add" onclick="btnStatus(); //mess(true)" disabled>
+                        </div>
+                    </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Delete confirmation box *@
+    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-hidden="true">
+        <div style="max-width: 25%" class="modal-dialog " role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Employees</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data" role="form">
+                        <div class="form-group">
+                            <p>Are you sure you want to delete these Records</p>
+                            <input id="getter" name="getter" hidden>
+                            <small style="color: #ffa426;">This action cannot be undone</small>
+                        </div>
+                        <br />
+                        <div class="form-group" style="float: right;">
+                            <input type="button" class="btn" data-dismiss="modal" value="Cancel">
+                            <input type="button" class="btn btn-danger" style="width: 100px;" id="deleteConfirm" name="deleteConfirm" value="Delete" onclick="DeleteEmployee(); //mess(false)">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
